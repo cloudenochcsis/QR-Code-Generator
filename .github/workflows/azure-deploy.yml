@@ -1,0 +1,301 @@
+name: Deploy to Azure
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Environment to deploy to'
+        required: true
+        default: 'staging'
+        type: choice
+        options:
+        - staging
+        - production
+
+env:
+  AZURE_REGION: eastus
+  AKS_CLUSTER_NAME: qr-generator-prod-aks
+  RESOURCE_GROUP: qr-generator-prod-rg
+  REGISTRY: ghcr.io
+
+jobs:
+  # Infrastructure Deployment
+  terraform-plan:
+    runs-on: ubuntu-latest
+    environment: ${{ github.event.inputs.environment || 'production' }}
+    
+    outputs:
+      tfplan: ${{ steps.plan.outputs.tfplan }}
+      
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Azure Login
+      uses: azure/login@v1
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+    - name: Setup Terraform
+      uses: hashicorp/setup-terraform@v3
+      with:
+        terraform_version: 1.6.0
+
+    - name: Terraform Init
+      run: |
+        cd infrastructure/terraform/azure
+        terraform init
+
+    - name: Terraform Plan
+      id: plan
+      run: |
+        cd infrastructure/terraform/azure
+        terraform plan -out=tfplan -var="environment=${{ github.event.inputs.environment || 'prod' }}"
+        echo "tfplan=tfplan" >> $GITHUB_OUTPUT
+
+    - name: Upload Terraform Plan
+      uses: actions/upload-artifact@v3
+      with:
+        name: terraform-plan-azure
+        path: infrastructure/terraform/azure/tfplan
+
+  terraform-apply:
+    runs-on: ubuntu-latest
+    needs: terraform-plan
+    environment: ${{ github.event.inputs.environment || 'production' }}
+    if: github.ref == 'refs/heads/main'
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Azure Login
+      uses: azure/login@v1
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+    - name: Setup Terraform
+      uses: hashicorp/setup-terraform@v3
+      with:
+        terraform_version: 1.6.0
+
+    - name: Download Terraform Plan
+      uses: actions/download-artifact@v3
+      with:
+        name: terraform-plan-azure
+        path: infrastructure/terraform/azure/
+
+    - name: Terraform Init
+      run: |
+        cd infrastructure/terraform/azure
+        terraform init
+
+    - name: Terraform Apply
+      run: |
+        cd infrastructure/terraform/azure
+        terraform apply -auto-approve tfplan
+
+  # Application Deployment
+  deploy-to-aks:
+    runs-on: ubuntu-latest
+    needs: [terraform-apply]
+    environment: ${{ github.event.inputs.environment || 'production' }}
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Azure Login
+      uses: azure/login@v1
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+    - name: Install kubectl
+      uses: azure/setup-kubectl@v3
+      with:
+        version: 'v1.28.0'
+
+    - name: Install Helm
+      uses: azure/setup-helm@v3
+      with:
+        version: '3.13.0'
+
+    - name: Get AKS credentials
+      run: |
+        az aks get-credentials --resource-group ${{ env.RESOURCE_GROUP }} --name ${{ env.AKS_CLUSTER_NAME }}
+
+    - name: Create namespace
+      run: |
+        kubectl apply -f infrastructure/kubernetes/azure/namespace.yaml
+
+    - name: Create secrets
+      run: |
+        # Create secrets from GitHub secrets
+        kubectl create secret generic qr-generator-secrets \
+          --from-literal=AZURE_STORAGE_ACCOUNT="${{ secrets.AZURE_STORAGE_ACCOUNT }}" \
+          --from-literal=AZURE_STORAGE_CONNECTION_STRING="${{ secrets.AZURE_STORAGE_CONNECTION_STRING }}" \
+          --from-literal=AWS_ACCESS_KEY_ID="${{ secrets.AWS_ACCESS_KEY_ID }}" \
+          --from-literal=AWS_SECRET_ACCESS_KEY="${{ secrets.AWS_SECRET_ACCESS_KEY }}" \
+          --namespace=qr-generator \
+          --dry-run=client -o yaml | kubectl apply -f -
+
+    - name: Apply ConfigMaps
+      run: |
+        kubectl apply -f infrastructure/kubernetes/azure/configmap.yaml
+
+    - name: Apply RBAC
+      run: |
+        kubectl apply -f infrastructure/kubernetes/azure/secrets.yaml
+
+    - name: Deploy backend
+      run: |
+        # Update image tag in deployment
+        sed -i "s|your-registry/qr-generator-backend:latest|${{ env.REGISTRY }}/${{ github.repository }}/backend:${{ github.sha }}|g" infrastructure/kubernetes/azure/backend-deployment.yaml
+        kubectl apply -f infrastructure/kubernetes/azure/backend-deployment.yaml
+
+    - name: Deploy frontend
+      run: |
+        # Update image tag in deployment
+        sed -i "s|your-registry/qr-generator-frontend:latest|${{ env.REGISTRY }}/${{ github.repository }}/frontend:${{ github.sha }}|g" infrastructure/kubernetes/azure/frontend-deployment.yaml
+        kubectl apply -f infrastructure/kubernetes/azure/frontend-deployment.yaml
+
+    - name: Apply Ingress
+      run: |
+        kubectl apply -f infrastructure/kubernetes/azure/ingress.yaml
+
+    - name: Apply HPA
+      run: |
+        kubectl apply -f infrastructure/kubernetes/azure/hpa.yaml
+
+    - name: Wait for deployment
+      run: |
+        kubectl rollout status deployment/qr-generator-backend -n qr-generator --timeout=600s
+        kubectl rollout status deployment/qr-generator-frontend -n qr-generator --timeout=600s
+
+    - name: Verify deployment
+      run: |
+        kubectl get pods -n qr-generator
+        kubectl get services -n qr-generator
+        kubectl get ingress -n qr-generator
+
+  # Monitoring Setup
+  deploy-monitoring:
+    runs-on: ubuntu-latest
+    needs: [deploy-to-aks]
+    environment: ${{ github.event.inputs.environment || 'production' }}
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Azure Login
+      uses: azure/login@v1
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+    - name: Install Helm
+      uses: azure/setup-helm@v3
+      with:
+        version: '3.13.0'
+
+    - name: Get AKS credentials
+      run: |
+        az aks get-credentials --resource-group ${{ env.RESOURCE_GROUP }} --name ${{ env.AKS_CLUSTER_NAME }}
+
+    - name: Add Helm repositories
+      run: |
+        helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+        helm repo add grafana https://grafana.github.io/helm-charts
+        helm repo update
+
+    - name: Deploy Prometheus
+      run: |
+        helm upgrade --install prometheus prometheus-community/kube-prometheus-stack \
+          --namespace monitoring \
+          --create-namespace \
+          --set prometheus.prometheusSpec.serviceMonitorSelectorNilUsesHelmValues=false \
+          --set prometheus.prometheusSpec.podMonitorSelectorNilUsesHelmValues=false \
+          --wait
+
+    - name: Deploy Grafana dashboards
+      run: |
+        kubectl apply -f infrastructure/kubernetes/monitoring/ -n monitoring
+
+  # Health Check and Smoke Tests
+  health-check:
+    runs-on: ubuntu-latest
+    needs: [deploy-to-aks]
+    environment: ${{ github.event.inputs.environment || 'production' }}
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Azure Login
+      uses: azure/login@v1
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+    - name: Get AKS credentials
+      run: |
+        az aks get-credentials --resource-group ${{ env.RESOURCE_GROUP }} --name ${{ env.AKS_CLUSTER_NAME }}
+
+    - name: Get service endpoints
+      id: endpoints
+      run: |
+        # Wait for Application Gateway to get public IP
+        sleep 180
+        BACKEND_URL=$(kubectl get ingress qr-generator-ingress -n qr-generator -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
+        echo "backend_url=https://$BACKEND_URL" >> $GITHUB_OUTPUT
+
+    - name: Health check
+      run: |
+        # Test backend health
+        curl -f ${{ steps.endpoints.outputs.backend_url }}/health || exit 1
+        
+        # Test API endpoints
+        curl -f ${{ steps.endpoints.outputs.backend_url }}/docs || exit 1
+
+    - name: Smoke tests
+      run: |
+        # Test QR generation
+        response=$(curl -s -X POST ${{ steps.endpoints.outputs.backend_url }}/qr/generate \
+          -H "Content-Type: application/json" \
+          -d '{"data": "azure-deployment-test", "format": "PNG"}')
+        
+        echo "QR generation response: $response"
+        
+        # Verify response contains expected fields
+        echo "$response" | jq -e '.id' || exit 1
+        echo "$response" | jq -e '.download_url' || exit 1
+
+  # Rollback capability
+  rollback:
+    runs-on: ubuntu-latest
+    if: failure()
+    needs: [deploy-to-aks, health-check]
+    environment: ${{ github.event.inputs.environment || 'production' }}
+    
+    steps:
+    - name: Azure Login
+      uses: azure/login@v1
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+    - name: Get AKS credentials
+      run: |
+        az aks get-credentials --resource-group ${{ env.RESOURCE_GROUP }} --name ${{ env.AKS_CLUSTER_NAME }}
+
+    - name: Rollback deployment
+      run: |
+        kubectl rollout undo deployment/qr-generator-backend -n qr-generator
+        kubectl rollout undo deployment/qr-generator-frontend -n qr-generator
+        
+        kubectl rollout status deployment/qr-generator-backend -n qr-generator --timeout=300s
+        kubectl rollout status deployment/qr-generator-frontend -n qr-generator --timeout=300s
+
+    - name: Notify rollback
+      run: |
+        echo "Azure deployment rolled back due to health check failure"

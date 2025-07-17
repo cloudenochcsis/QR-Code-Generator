@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: qr-generator
+  labels:
+    name: qr-generator
+    environment: production
+    cloud-provider: aws
+  annotations:
+    description: "Multi-Cloud QR Code Generator Application"

@@ -1,0 +1,219 @@
+# Prometheus Alert Rules for QR Code Generator
+groups:
+  - name: qr-generator.rules
+    rules:
+      # High-level application alerts
+      - alert: QRGeneratorDown
+        expr: up{job="qr-generator-backend"} == 0
+        for: 1m
+        labels:
+          severity: critical
+          service: qr-generator
+        annotations:
+          summary: "QR Generator backend is down"
+          description: "QR Generator backend has been down for more than 1 minute."
+
+      - alert: QRGeneratorHighErrorRate
+        expr: rate(http_requests_total{job="qr-generator-backend",status=~"5.."}[5m]) > 0.1
+        for: 5m
+        labels:
+          severity: warning
+          service: qr-generator
+        annotations:
+          summary: "High error rate in QR Generator"
+          description: "QR Generator is experiencing {{ $value }} errors per second."
+
+      - alert: QRGeneratorHighLatency
+        expr: histogram_quantile(0.95, rate(http_request_duration_seconds_bucket{job="qr-generator-backend"}[5m])) > 1
+        for: 5m
+        labels:
+          severity: warning
+          service: qr-generator
+        annotations:
+          summary: "High latency in QR Generator"
+          description: "95th percentile latency is {{ $value }}s."
+
+      - alert: QRGeneratorLowThroughput
+        expr: rate(qr_codes_generated_total[5m]) < 0.1
+        for: 10m
+        labels:
+          severity: warning
+          service: qr-generator
+        annotations:
+          summary: "Low QR code generation throughput"
+          description: "QR code generation rate is {{ $value }} per second."
+
+      # Storage alerts
+      - alert: StorageUploadFailures
+        expr: rate(storage_uploads_total{status="failed"}[5m]) > 0.05
+        for: 5m
+        labels:
+          severity: warning
+          service: qr-generator
+        annotations:
+          summary: "High storage upload failure rate"
+          description: "Storage upload failure rate is {{ $value }} per second."
+
+      - alert: StorageHighLatency
+        expr: histogram_quantile(0.95, rate(storage_upload_duration_seconds_bucket[5m])) > 5
+        for: 5m
+        labels:
+          severity: warning
+          service: qr-generator
+        annotations:
+          summary: "High storage upload latency"
+          description: "95th percentile storage upload latency is {{ $value }}s."
+
+  - name: infrastructure.rules
+    rules:
+      # Kubernetes cluster alerts
+      - alert: KubernetesNodeDown
+        expr: up{job="kubernetes-nodes"} == 0
+        for: 5m
+        labels:
+          severity: critical
+          component: kubernetes
+        annotations:
+          summary: "Kubernetes node is down"
+          description: "Kubernetes node {{ $labels.instance }} has been down for more than 5 minutes."
+
+      - alert: KubernetesNodeHighCPU
+        expr: (100 - (avg by (instance) (rate(node_cpu_seconds_total{mode="idle"}[5m])) * 100)) > 80
+        for: 10m
+        labels:
+          severity: warning
+          component: kubernetes
+        annotations:
+          summary: "High CPU usage on Kubernetes node"
+          description: "CPU usage on node {{ $labels.instance }} is {{ $value }}%."
+
+      - alert: KubernetesNodeHighMemory
+        expr: (1 - (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)) * 100 > 85
+        for: 10m
+        labels:
+          severity: warning
+          component: kubernetes
+        annotations:
+          summary: "High memory usage on Kubernetes node"
+          description: "Memory usage on node {{ $labels.instance }} is {{ $value }}%."
+
+      - alert: KubernetesNodeHighDiskUsage
+        expr: (1 - (node_filesystem_avail_bytes{fstype!="tmpfs"} / node_filesystem_size_bytes{fstype!="tmpfs"})) * 100 > 85
+        for: 10m
+        labels:
+          severity: warning
+          component: kubernetes
+        annotations:
+          summary: "High disk usage on Kubernetes node"
+          description: "Disk usage on node {{ $labels.instance }} is {{ $value }}%."
+
+      # Pod alerts
+      - alert: PodCrashLooping
+        expr: rate(kube_pod_container_status_restarts_total[15m]) > 0
+        for: 5m
+        labels:
+          severity: warning
+          component: kubernetes
+        annotations:
+          summary: "Pod is crash looping"
+          description: "Pod {{ $labels.namespace }}/{{ $labels.pod }} is crash looping."
+
+      - alert: PodNotReady
+        expr: kube_pod_status_ready{condition="false"} == 1
+        for: 10m
+        labels:
+          severity: warning
+          component: kubernetes
+        annotations:
+          summary: "Pod is not ready"
+          description: "Pod {{ $labels.namespace }}/{{ $labels.pod }} has been not ready for more than 10 minutes."
+
+      - alert: DeploymentReplicasMismatch
+        expr: kube_deployment_spec_replicas != kube_deployment_status_available_replicas
+        for: 10m
+        labels:
+          severity: warning
+          component: kubernetes
+        annotations:
+          summary: "Deployment replicas mismatch"
+          description: "Deployment {{ $labels.namespace }}/{{ $labels.deployment }} has {{ $value }} available replicas, expected {{ $labels.spec_replicas }}."
+
+  - name: performance.rules
+    rules:
+      # Performance recording rules
+      - record: qr_generator:request_rate
+        expr: rate(http_requests_total{job="qr-generator-backend"}[5m])
+
+      - record: qr_generator:error_rate
+        expr: rate(http_requests_total{job="qr-generator-backend",status=~"5.."}[5m])
+
+      - record: qr_generator:latency_p95
+        expr: histogram_quantile(0.95, rate(http_request_duration_seconds_bucket{job="qr-generator-backend"}[5m]))
+
+      - record: qr_generator:latency_p99
+        expr: histogram_quantile(0.99, rate(http_request_duration_seconds_bucket{job="qr-generator-backend"}[5m]))
+
+      - record: qr_generator:qr_generation_rate
+        expr: rate(qr_codes_generated_total[5m])
+
+      - record: qr_generator:storage_upload_rate
+        expr: rate(storage_uploads_total[5m])
+
+      - record: qr_generator:storage_error_rate
+        expr: rate(storage_uploads_total{status="failed"}[5m])
+
+  - name: business.rules
+    rules:
+      # Business metric alerts
+      - alert: LowQRGenerationVolume
+        expr: sum(rate(qr_codes_generated_total[1h])) < 10
+        for: 30m
+        labels:
+          severity: info
+          service: qr-generator
+        annotations:
+          summary: "Low QR code generation volume"
+          description: "QR code generation volume is {{ $value }} per hour, which is below expected threshold."
+
+      - alert: HighQRGenerationVolume
+        expr: sum(rate(qr_codes_generated_total[5m])) > 100
+        for: 5m
+        labels:
+          severity: info
+          service: qr-generator
+        annotations:
+          summary: "High QR code generation volume"
+          description: "QR code generation volume is {{ $value }} per second, which is above normal levels."
+
+      - alert: StorageQuotaWarning
+        expr: (storage_used_bytes / storage_quota_bytes) > 0.8
+        for: 1h
+        labels:
+          severity: warning
+          service: qr-generator
+        annotations:
+          summary: "Storage quota warning"
+          description: "Storage usage is {{ $value | humanizePercentage }} of quota."
+
+  - name: security.rules
+    rules:
+      # Security alerts
+      - alert: UnauthorizedAPIAccess
+        expr: rate(http_requests_total{job="qr-generator-backend",status="401"}[5m]) > 0.1
+        for: 5m
+        labels:
+          severity: warning
+          service: qr-generator
+        annotations:
+          summary: "High rate of unauthorized API access"
+          description: "Unauthorized access rate is {{ $value }} per second."
+
+      - alert: SuspiciousAPIActivity
+        expr: rate(http_requests_total{job="qr-generator-backend",status="429"}[5m]) > 0.5
+        for: 2m
+        labels:
+          severity: warning
+          service: qr-generator
+        annotations:
+          summary: "High rate of rate-limited requests"
+          description: "Rate-limited request rate is {{ $value }} per second, indicating potential abuse."
