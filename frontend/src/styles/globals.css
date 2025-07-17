@@ -12,30 +12,30 @@
   }
   
   * {
-    @apply border-gray-200 dark:border-gray-700;
+    @apply border-secondary-200 dark:border-secondary-700;
   }
 }
 
 @layer components {
-  /* Custom button styles */
+  /* Custom button styles with new red, black, white theme */
   .btn {
-    @apply inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none;
+    @apply inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none;
   }
-  
+
   .btn-primary {
-    @apply bg-blue-600 text-white hover:bg-blue-700 focus:ring-blue-500;
+    @apply bg-primary-500 text-white hover:bg-primary-700 focus:ring-primary-500 shadow-sm;
   }
 
   .btn-secondary {
-    @apply bg-gray-200 text-gray-900 hover:bg-gray-300 focus:ring-gray-500 dark:bg-gray-700 dark:text-gray-100 dark:hover:bg-gray-600;
+    @apply bg-secondary-200 text-secondary-800 hover:bg-secondary-300 focus:ring-secondary-500 dark:bg-secondary-700 dark:text-secondary-100 dark:hover:bg-secondary-600;
   }
 
   .btn-outline {
-    @apply border border-gray-300 bg-transparent hover:bg-gray-100 hover:text-gray-900 dark:border-gray-600 dark:hover:bg-gray-800 dark:hover:text-gray-100;
+    @apply border border-secondary-300 bg-transparent text-secondary-800 hover:bg-secondary-100 hover:text-secondary-900 dark:border-secondary-600 dark:text-secondary-200 dark:hover:bg-secondary-800 dark:hover:text-secondary-100;
   }
 
   .btn-ghost {
-    @apply hover:bg-gray-100 hover:text-gray-900 dark:hover:bg-gray-800 dark:hover:text-gray-100;
+    @apply hover:bg-secondary-100 hover:text-secondary-900 dark:hover:bg-secondary-800 dark:hover:text-secondary-100;
   }
   
   .btn-sm {
@@ -50,34 +50,34 @@
     @apply h-11 px-8;
   }
   
-  /* Form styles */
+  /* Form styles with new color scheme */
   .form-input {
-    @apply flex h-10 w-full rounded-md border border-gray-300 bg-transparent px-3 py-2 text-sm file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-gray-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 dark:border-gray-600 dark:placeholder:text-gray-400;
+    @apply flex h-10 w-full rounded-md border border-secondary-300 bg-transparent px-3 py-2 text-sm file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-secondary-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 dark:border-secondary-600 dark:placeholder:text-secondary-400;
   }
 
   .form-textarea {
-    @apply flex min-h-[80px] w-full rounded-md border border-gray-300 bg-transparent px-3 py-2 text-sm placeholder:text-gray-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 dark:border-gray-600 dark:placeholder:text-gray-400;
+    @apply flex min-h-[80px] w-full rounded-md border border-secondary-300 bg-transparent px-3 py-2 text-sm placeholder:text-secondary-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 dark:border-secondary-600 dark:placeholder:text-secondary-400;
   }
-  
+
   .form-label {
-    @apply text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70;
+    @apply text-sm font-medium leading-none text-secondary-700 dark:text-secondary-300 peer-disabled:cursor-not-allowed peer-disabled:opacity-70;
   }
   
-  /* Card styles */
+  /* Card styles with new color scheme */
   .card {
-    @apply rounded-lg border bg-white text-gray-900 shadow-sm dark:bg-gray-800 dark:text-gray-100 dark:border-gray-700;
+    @apply rounded-lg border bg-white text-secondary-900 shadow-sm dark:bg-secondary-800 dark:text-secondary-100 dark:border-secondary-700;
   }
-  
+
   .card-header {
     @apply flex flex-col space-y-1.5 p-6;
   }
-  
+
   .card-title {
     @apply text-2xl font-semibold leading-none tracking-tight;
   }
-  
+
   .card-description {
-    @apply text-sm text-gray-600 dark:text-gray-400;
+    @apply text-sm text-secondary-600 dark:text-secondary-400;
   }
   
   .card-content {
@@ -163,9 +163,9 @@
     text-wrap: balance;
   }
   
-  /* Focus utilities */
+  /* Focus utilities with new color scheme */
   .focus-ring {
-    @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2;
+    @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2;
   }
   
   /* Backdrop utilities */
@@ -174,48 +174,48 @@
   }
 }
 
-/* Dark mode variables */
+/* Color scheme variables - Red, Black, White theme */
 :root {
-  --background: 0 0% 100%;
-  --foreground: 222.2 84% 4.9%;
-  --card: 0 0% 100%;
-  --card-foreground: 222.2 84% 4.9%;
-  --popover: 0 0% 100%;
-  --popover-foreground: 222.2 84% 4.9%;
-  --primary: 221.2 83.2% 53.3%;
-  --primary-foreground: 210 40% 98%;
-  --secondary: 210 40% 96%;
-  --secondary-foreground: 222.2 84% 4.9%;
-  --muted: 210 40% 96%;
-  --muted-foreground: 215.4 16.3% 46.9%;
-  --accent: 210 40% 96%;
-  --accent-foreground: 222.2 84% 4.9%;
-  --destructive: 0 84.2% 60.2%;
-  --destructive-foreground: 210 40% 98%;
-  --border: 214.3 31.8% 91.4%;
-  --input: 214.3 31.8% 91.4%;
-  --ring: 221.2 83.2% 53.3%;
+  --background: 0 0% 100%;                    /* Pure white */
+  --foreground: 210 11% 15%;                  /* Dark gray/black for text */
+  --card: 0 0% 100%;                          /* White cards */
+  --card-foreground: 210 11% 15%;             /* Dark text on cards */
+  --popover: 0 0% 100%;                       /* White popovers */
+  --popover-foreground: 210 11% 15%;          /* Dark text in popovers */
+  --primary: 0 84% 60%;                       /* Primary red (#e53e3e) */
+  --primary-foreground: 0 0% 100%;            /* White text on red */
+  --secondary: 210 40% 96%;                   /* Light gray */
+  --secondary-foreground: 210 11% 15%;        /* Dark text on light gray */
+  --muted: 210 40% 96%;                       /* Muted light gray */
+  --muted-foreground: 215 16% 47%;            /* Medium gray text */
+  --accent: 0 100% 97%;                       /* Very light red accent */
+  --accent-foreground: 210 11% 15%;           /* Dark text on light red */
+  --destructive: 0 84% 60%;                   /* Same as primary red for errors */
+  --destructive-foreground: 0 0% 100%;        /* White text on red */
+  --border: 220 13% 91%;                      /* Light gray borders */
+  --input: 220 13% 91%;                       /* Light gray input borders */
+  --ring: 0 84% 60%;                          /* Red focus rings */
   --radius: 0.5rem;
 }
 
 .dark {
-  --background: 222.2 84% 4.9%;
-  --foreground: 210 40% 98%;
-  --card: 222.2 84% 4.9%;
-  --card-foreground: 210 40% 98%;
-  --popover: 222.2 84% 4.9%;
-  --popover-foreground: 210 40% 98%;
-  --primary: 217.2 91.2% 59.8%;
-  --primary-foreground: 222.2 84% 4.9%;
-  --secondary: 217.2 32.6% 17.5%;
-  --secondary-foreground: 210 40% 98%;
-  --muted: 217.2 32.6% 17.5%;
-  --muted-foreground: 215 20.2% 65.1%;
-  --accent: 217.2 32.6% 17.5%;
-  --accent-foreground: 210 40% 98%;
-  --destructive: 0 62.8% 30.6%;
-  --destructive-foreground: 210 40% 98%;
-  --border: 217.2 32.6% 17.5%;
-  --input: 217.2 32.6% 17.5%;
-  --ring: 224.3 76.3% 94.1%;
+  --background: 210 11% 15%;                  /* Dark gray/black background */
+  --foreground: 0 0% 100%;                    /* White text */
+  --card: 210 11% 15%;                        /* Dark cards */
+  --card-foreground: 0 0% 100%;               /* White text on dark cards */
+  --popover: 210 11% 15%;                     /* Dark popovers */
+  --popover-foreground: 0 0% 100%;            /* White text in popovers */
+  --primary: 0 84% 60%;                       /* Same red primary */
+  --primary-foreground: 0 0% 100%;            /* White text on red */
+  --secondary: 217 33% 17%;                   /* Dark gray secondary */
+  --secondary-foreground: 0 0% 100%;          /* White text on dark gray */
+  --muted: 217 33% 17%;                       /* Dark muted */
+  --muted-foreground: 215 20% 65%;            /* Light gray text */
+  --accent: 0 84% 15%;                        /* Dark red accent */
+  --accent-foreground: 0 0% 100%;             /* White text on dark red */
+  --destructive: 0 84% 60%;                   /* Same red for errors */
+  --destructive-foreground: 0 0% 100%;        /* White text on red */
+  --border: 217 33% 17%;                      /* Dark borders */
+  --input: 217 33% 17%;                       /* Dark input borders */
+  --ring: 0 84% 60%;                          /* Red focus rings */
 }

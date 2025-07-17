@@ -9,67 +9,72 @@ module.exports = {
   theme: {
     extend: {
       colors: {
+        // Primary Red Palette (Brand Color)
         primary: {
-          50: '#eff6ff',
-          100: '#dbeafe',
-          200: '#bfdbfe',
-          300: '#93c5fd',
-          400: '#60a5fa',
-          500: '#3b82f6',
-          600: '#2563eb',
-          700: '#1d4ed8',
-          800: '#1e40af',
-          900: '#1e3a8a',
-          950: '#172554',
+          50: '#fef5f5',   // Light red tint for subtle highlights
+          100: '#fee2e2',  // Very light red
+          200: '#fecaca',  // Light red
+          300: '#fca5a5',  // Medium light red
+          400: '#f87171',  // Medium red
+          500: '#e53e3e',  // Primary red (main brand color)
+          600: '#dc2626',  // Darker red
+          700: '#c53030',  // Dark red (hover states)
+          800: '#991b1b',  // Very dark red
+          900: '#7f1d1d',  // Darkest red
+          950: '#450a0a',  // Almost black red
         },
+        // Black/Gray Palette
         secondary: {
-          50: '#f8fafc',
-          100: '#f1f5f9',
-          200: '#e2e8f0',
-          300: '#cbd5e1',
-          400: '#94a3b8',
-          500: '#64748b',
-          600: '#475569',
-          700: '#334155',
-          800: '#1e293b',
-          900: '#0f172a',
-          950: '#020617',
+          50: '#f7fafc',   // Almost white
+          100: '#edf2f7',  // Very light gray
+          200: '#e2e8f0',  // Light gray
+          300: '#cbd5e0',  // Medium light gray
+          400: '#a0aec0',  // Medium gray
+          500: '#718096',  // Gray
+          600: '#4a5568',  // Dark gray
+          700: '#2d3748',  // Very dark gray
+          800: '#1a202c',  // Primary black (main text color)
+          900: '#171923',  // Darker black
+          950: '#0d1117',  // Darkest black
         },
+        // Success Green (System Color)
         success: {
-          50: '#f0fdf4',
-          100: '#dcfce7',
-          200: '#bbf7d0',
-          300: '#86efac',
-          400: '#4ade80',
-          500: '#22c55e',
-          600: '#16a34a',
-          700: '#15803d',
-          800: '#166534',
-          900: '#14532d',
-          950: '#052e16',
+          50: '#f0fff4',
+          100: '#c6f6d5',
+          200: '#9ae6b4',
+          300: '#68d391',
+          400: '#48bb78',
+          500: '#38a169',  // Primary success color
+          600: '#2f855a',
+          700: '#276749',
+          800: '#22543d',
+          900: '#1c4532',
+          950: '#0f2419',
         },
+        // Warning Orange (System Color)
         warning: {
           50: '#fffbeb',
           100: '#fef3c7',
           200: '#fde68a',
           300: '#fcd34d',
           400: '#fbbf24',
-          500: '#f59e0b',
-          600: '#d97706',
-          700: '#b45309',
-          800: '#92400e',
-          900: '#78350f',
+          500: '#d69e2e',  // Primary warning color
+          600: '#b7791f',
+          700: '#975a16',
+          800: '#744210',
+          900: '#5f370e',
           950: '#451a03',
         },
+        // Error uses Primary Red
         error: {
-          50: '#fef2f2',
+          50: '#fef5f5',
           100: '#fee2e2',
           200: '#fecaca',
           300: '#fca5a5',
           400: '#f87171',
-          500: '#ef4444',
+          500: '#e53e3e',  // Same as primary red
           600: '#dc2626',
-          700: '#b91c1c',
+          700: '#c53030',
           800: '#991b1b',
           900: '#7f1d1d',
           950: '#450a0a',

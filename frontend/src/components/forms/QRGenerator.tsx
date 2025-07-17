@@ -128,17 +128,17 @@ export default function QRGenerator({ onQRGenerated }: QRGeneratorProps) {
 
 
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+    <div className="bg-white dark:bg-secondary-800 rounded-lg shadow-sm border border-secondary-200 dark:border-secondary-700 p-6">
       {/* Tab Navigation */}
-      <div className="flex space-x-1 mb-6 bg-gray-100 dark:bg-gray-700 rounded-lg p-1">
+      <div className="flex space-x-1 mb-6 bg-secondary-100 dark:bg-secondary-700 rounded-lg p-1">
         {tabs.map((tab) => (
           <button
             key={tab.id}
             onClick={() => setActiveTab(tab.id as any)}
             className={`flex items-center space-x-2 px-4 py-2 rounded-md text-sm font-medium transition-colors ${
               activeTab === tab.id
-                ? 'bg-white dark:bg-gray-600 text-gray-900 dark:text-white shadow-sm'
-                : 'text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white'
+                ? 'bg-white dark:bg-secondary-600 text-secondary-900 dark:text-white shadow-sm'
+                : 'text-secondary-600 dark:text-secondary-300 hover:text-secondary-900 dark:hover:text-white'
             }`}
           >
             <tab.icon className="w-4 h-4" />
@@ -169,7 +169,7 @@ export default function QRGenerator({ onQRGenerated }: QRGeneratorProps) {
                 placeholder="Enter the content for your QR code..."
               />
               {errors.data && (
-                <p className="mt-1 text-sm text-red-600">{errors.data.message}</p>
+                <p className="mt-1 text-sm text-primary-600">{errors.data.message}</p>
               )}
             </div>
 
@@ -195,17 +195,17 @@ export default function QRGenerator({ onQRGenerated }: QRGeneratorProps) {
                   type="range"
                   min="1"
                   max="40"
-                  className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700"
+                  className="w-full h-2 bg-secondary-200 rounded-lg appearance-none cursor-pointer dark:bg-secondary-700"
                 />
               </div>
             </div>
 
             {/* Advanced Options */}
             <details className="group">
-              <summary className="cursor-pointer text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white">
+              <summary className="cursor-pointer text-sm font-medium text-secondary-700 dark:text-secondary-300 hover:text-secondary-900 dark:hover:text-white">
                 Advanced Options
               </summary>
-              <div className="mt-4 space-y-4 pl-4 border-l-2 border-gray-200 dark:border-gray-600">
+              <div className="mt-4 space-y-4 pl-4 border-l-2 border-secondary-200 dark:border-secondary-600">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
                     <label htmlFor="border" className="form-label">
@@ -216,7 +216,7 @@ export default function QRGenerator({ onQRGenerated }: QRGeneratorProps) {
                       type="range"
                       min="0"
                       max="20"
-                      className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700"
+                      className="w-full h-2 bg-secondary-200 rounded-lg appearance-none cursor-pointer dark:bg-secondary-700"
                     />
                   </div>
 
@@ -305,7 +305,7 @@ export default function QRGenerator({ onQRGenerated }: QRGeneratorProps) {
                     <button
                       type="button"
                       onClick={() => removeBatchItem(index)}
-                      className="px-3 py-2 text-red-600 hover:text-red-800 transition-colors"
+                      className="px-3 py-2 text-primary-600 hover:text-primary-800 transition-colors"
                     >
                       ×
                     </button>
@@ -316,7 +316,7 @@ export default function QRGenerator({ onQRGenerated }: QRGeneratorProps) {
             <button
               type="button"
               onClick={addBatchItem}
-              className="mt-3 text-sm text-primary-600 hover:text-primary-800 transition-colors"
+              className="mt-3 text-sm text-primary-500 hover:text-primary-700 transition-colors"
             >
               + Add Item
             </button>
@@ -354,18 +354,18 @@ export default function QRGenerator({ onQRGenerated }: QRGeneratorProps) {
             className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors cursor-pointer ${
               isDragActive
                 ? 'border-primary-500 bg-primary-50 dark:bg-primary-900/20'
-                : 'border-gray-300 dark:border-gray-600 hover:border-primary-400'
+                : 'border-secondary-300 dark:border-secondary-600 hover:border-primary-400'
             }`}
           >
             <input {...getInputProps()} />
-            <Upload className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-            <p className="text-lg font-medium text-gray-900 dark:text-white mb-2">
+            <Upload className="w-12 h-12 text-secondary-400 mx-auto mb-4" />
+            <p className="text-lg font-medium text-secondary-900 dark:text-white mb-2">
               {isDragActive ? 'Drop the file here' : 'Upload a file'}
             </p>
-            <p className="text-gray-600 dark:text-gray-300 mb-4">
+            <p className="text-secondary-600 dark:text-secondary-300 mb-4">
               Drag and drop a .txt or .csv file, or click to browse
             </p>
-            <p className="text-sm text-gray-500">
+            <p className="text-sm text-secondary-500">
               Each line in the file will generate a separate QR code (max 100 lines)
             </p>
           </div>

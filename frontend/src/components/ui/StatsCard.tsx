@@ -19,9 +19,9 @@ export default function StatsCard({ label, value, change }: StatsCardProps) {
   };
 
   const getChangeColor = () => {
-    if (isPositive) return 'text-green-600 dark:text-green-400';
-    if (isNegative) return 'text-red-600 dark:text-red-400';
-    return 'text-gray-600 dark:text-gray-400';
+    if (isPositive) return 'text-success-600 dark:text-success-400';
+    if (isNegative) return 'text-primary-600 dark:text-primary-400';
+    return 'text-secondary-600 dark:text-secondary-400';
   };
 
   const Icon = getIcon();
@@ -29,14 +29,14 @@ export default function StatsCard({ label, value, change }: StatsCardProps) {
   return (
     <motion.div
       whileHover={{ scale: 1.02 }}
-      className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6"
+      className="bg-white dark:bg-secondary-800 rounded-lg shadow-sm border border-secondary-200 dark:border-secondary-700 p-6"
     >
       <div className="flex items-center justify-between">
         <div>
-          <p className="text-sm font-medium text-gray-600 dark:text-gray-400">
+          <p className="text-sm font-medium text-secondary-600 dark:text-secondary-400">
             {label}
           </p>
-          <p className="text-2xl font-bold text-gray-900 dark:text-white mt-1">
+          <p className="text-2xl font-bold text-secondary-900 dark:text-white mt-1">
             {value}
           </p>
         </div>
