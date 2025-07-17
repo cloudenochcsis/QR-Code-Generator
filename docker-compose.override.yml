@@ -1,0 +1,36 @@
+# Docker Compose override for local development
+version: '3.8'
+
+services:
+  # Backend development overrides
+  backend:
+    build:
+      target: production  # Use production stage but with dev volumes
+    environment:
+      - NODE_ENV=development
+      - DEBUG=true
+      - LOG_LEVEL=DEBUG
+      - PYTHONUNBUFFERED=1
+      - PYTHONDONTWRITEBYTECODE=1
+    volumes:
+      - ./backend:/app:delegated
+      - backend_logs:/app/logs
+      - /app/__pycache__  # Exclude pycache from volume mount
+    command: ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
+    
+  # Frontend development overrides
+  frontend:
+    build:
+      target: production  # Use production build
+    environment:
+      - NODE_ENV=production
+      - NEXT_PUBLIC_API_URL=http://localhost:8000
+    # volumes:
+    #   - ./frontend:/app:delegated
+    #   - /app/node_modules  # Exclude node_modules from volume mount
+    #   - /app/.next  # Exclude .next from volume mount
+    
+  # Disable nginx for local development (direct access to services)
+  nginx:
+    profiles:
+      - production  # Only start nginx when using production profile
