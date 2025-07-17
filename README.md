@@ -1,8 +1,8 @@
-# 🛠️ Multi-Cloud Microservices QR Code Generator
+# Multi-Cloud Microservices QR Code Generator
 
 A production-ready DevOps portfolio project demonstrating containerized microservices with full automation, deployable on both AWS and Azure cloud platforms.
 
-## 🏗️ Architecture Overview
+## Architecture Overview
 
 This project showcases enterprise-level DevOps practices with:
 
@@ -14,7 +14,7 @@ This project showcases enterprise-level DevOps practices with:
 - **CI/CD**: GitHub Actions with multi-cloud deployment
 - **Monitoring**: Prometheus + Grafana stack
 
-## 🚀 Quick Start
+## Quick Start
 
 ### Prerequisites
 
@@ -64,7 +64,7 @@ docker-compose up --build
 # Backend: http://localhost:8000
 ```
 
-## 📁 Project Structure
+## Project Structure
 
 ```
 qr-code-generator/
@@ -93,7 +93,7 @@ qr-code-generator/
 └── README.md              # This file
 ```
 
-## 🌐 Multi-Cloud Deployment
+## Multi-Cloud Deployment
 
 ### AWS Deployment
 
@@ -135,7 +135,7 @@ qr-code-generator/
    kubectl apply -f infrastructure/kubernetes/azure/
    ```
 
-## 🔧 Features
+## Features
 
 ### Frontend Features
 - Modern, responsive QR code generator interface
@@ -166,7 +166,7 @@ qr-code-generator/
 - Comprehensive monitoring and alerting
 - Infrastructure as Code (100% Terraform managed)
 
-## 📊 Monitoring
+## Monitoring
 
 Access monitoring dashboards:
 
@@ -174,7 +174,7 @@ Access monitoring dashboards:
 - **Prometheus**: http://prometheus.your-domain.com
 - **Application Metrics**: Available at `/metrics` endpoint
 
-## 🔒 Security
+## Security
 
 - Container image vulnerability scanning
 - Kubernetes RBAC implementation
@@ -183,7 +183,7 @@ Access monitoring dashboards:
 - Least privilege access principles
 - Regular security updates and patches
 
-## 🧪 Testing
+## Testing
 
 ```bash
 # Run backend tests
@@ -202,7 +202,7 @@ npm audit
 safety check
 ```
 
-## 📚 Documentation
+## Documentation
 
 - [Architecture Documentation](docs/architecture.md)
 - [Deployment Guide](docs/deployment.md)
@@ -210,7 +210,7 @@ safety check
 - [Monitoring Guide](docs/monitoring.md)
 - [Troubleshooting](docs/troubleshooting.md)
 
-## 🤝 Contributing
+## Contributing
 
 1. Fork the repository
 2. Create a feature branch
@@ -219,6 +219,6 @@ safety check
 5. Ensure all tests pass
 6. Submit a pull request
 
-## 📄 License
+## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
